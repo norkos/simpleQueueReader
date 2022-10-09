@@ -7,14 +7,9 @@ def main():
     params = pika.URLParameters(os.getenv('CLOUDAMQP_URL'))
     connection = pika.BlockingConnection(params)
     channel = connection.channel()
-
-    try:
-        channel.queue_declare(queue='main')
-    except pika.exceptions.ChannelClosedByBroker:
-        print('Queue was already declared')
+    channel.queue_declare(queue='main', durable=True)
 
     def callback(ch, method, properties, body):
-        print('Received in main')
         data = json.loads(body)
         print(data)
 
@@ -22,7 +17,6 @@ def main():
     print('Started consuming')
 
     channel.start_consuming()
-    connection.close()
 
 
 if __name__ == '__main__':
