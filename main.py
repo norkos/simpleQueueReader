@@ -7,7 +7,11 @@ def main():
     params = pika.URLParameters(os.getenv('CLOUDAMQP_URL'))
     connection = pika.BlockingConnection(params)
     channel = connection.channel()
-    channel.queue_declare(queue='main')
+
+    try:
+        channel.queue_declare(queue='main')
+    except pika.exceptions.ChannelClosedByBroker:
+        print('Queue was already declared')
 
     def callback(ch, method, properties, body):
         print('Received in main')
