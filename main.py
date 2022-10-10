@@ -1,13 +1,7 @@
 import json
 import pika
 import os
-import uvicorn
 
-from fastapi import FastAPI
-
-app = FastAPI()
-
-PORT = os.environ.get('PORT', '8080')
 params = pika.URLParameters(os.getenv('CLOUDAMQP_URL'))
 connection = pika.BlockingConnection(params)
 channel = connection.channel()
@@ -28,22 +22,5 @@ channel.basic_consume(queue='main', on_message_callback=callback, auto_ack=False
 print('Started consuming')
 
 channel.start_consuming()
-
-
-@app.get("/")
-async def root():
-    return {"message": messages}
-
-
-if __name__ == "__main__":
-    uvicorn.run(
-        'main:app',
-        host='0.0.0.0',
-        port=int(PORT),
-        workers=2
-    )
-
-
-
 
 
